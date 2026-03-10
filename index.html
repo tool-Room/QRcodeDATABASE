@@ -3,16 +3,16 @@
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
-/* SESSION ID */
+/* SESSION */
 
 let sessionId = sessionStorage.getItem("session_id");
 
 if(!sessionId){
-  sessionId = Math.random().toString(36).substring(2,10);
-  sessionStorage.setItem("session_id",sessionId);
+sessionId = Math.random().toString(36).substring(2,10);
+sessionStorage.setItem("session_id",sessionId);
 }
 
-/* VISIT COUNT */
+/* VISIT */
 
 let visitCount = sessionStorage.getItem("visit_count");
 visitCount = visitCount ? parseInt(visitCount)+1 : 1;
@@ -22,26 +22,18 @@ sessionStorage.setItem("visit_count",visitCount);
 
 const device = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
 
-/* OS DETECTION */
+/* OS */
 
 let os="Unknown";
 
-if(navigator.userAgent.indexOf("Win")!=-1) os="Windows";
-if(navigator.userAgent.indexOf("Android")!=-1) os="Android";
-if(navigator.userAgent.indexOf("iPhone")!=-1) os="iOS";
-if(navigator.userAgent.indexOf("Mac")!=-1) os="MacOS";
+if(navigator.userAgent.includes("Win")) os="Windows";
+if(navigator.userAgent.includes("Android")) os="Android";
+if(navigator.userAgent.includes("iPhone")) os="iOS";
+if(navigator.userAgent.includes("Mac")) os="MacOS";
 
 /* BROWSER */
 
 const browser = navigator.userAgent;
-
-/* DOCUMENT TRACKING */
-
-let docsAccessed=[];
-
-/* START TIME */
-
-const startTime=Date.now();
 
 /* GET IP */
 
@@ -50,8 +42,6 @@ fetch("https://api.ipify.org?format=json")
 .then(data=>{
 
 const ip=data.ip;
-
-/* BUILD SCRIPT URL */
 
 const scriptURL =
 "https://script.google.com/macros/s/AKfycbxKYWO_MpFkLB8krgOZWwV3Xam5X47XAzTHjqKJCUDgOrCo16HZEsZslAunkoGtfUcWVQ/exec"
@@ -63,42 +53,9 @@ const scriptURL =
 +"&os="+encodeURIComponent(os)
 +"&ip="+encodeURIComponent(ip);
 
-/* LOAD APPS SCRIPT PAGE */
+/* LOAD APPS SCRIPT */
 
-document.getElementById("appframe").src=scriptURL;
-
-});
-
-/* RECEIVE DOCUMENT CLICK EVENTS FROM IFRAME */
-
-window.addEventListener("message",function(e){
-
-if(e.data && e.data.doc){
-
-if(!docsAccessed.includes(e.data.doc)){
-docsAccessed.push(e.data.doc);
-}
-
-}
-
-});
-
-/* SEND DURATION + DOCUMENTS WHEN PAGE CLOSES */
-
-window.addEventListener("beforeunload",function(){
-
-let duration=Math.round((Date.now()-startTime)/1000);
-
-navigator.sendBeacon(
-"https://script.google.com/macros/s/AKfycbxKYWO_MpFkLB8krgOZWwV3Xam5X47XAzTHjqKJCUDgOrCo16HZEsZslAunkoGtfUcWVQ/exec",
-new URLSearchParams({
-id:id,
-session:sessionId,
-visit:visitCount,
-duration:duration,
-docs:docsAccessed.join(", ")
-})
-);
+document.getElementById("appframe").src = scriptURL;
 
 });
 
