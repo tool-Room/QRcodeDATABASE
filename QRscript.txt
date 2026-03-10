@@ -1,0 +1,418 @@
+/*********************************
+ * MAIN ENTRY FUNCTION
+ *********************************/
+function doGet(e) {
+
+  var id = e && e.parameter ? e.parameter.id : null;
+  if (!id) return HtmlService.createHtmlOutput("No ID Provided");
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var fixturesSheet = ss.getSheetByName("Fixtures");
+  var spmSheet = ss.getSheetByName("SPM");
+
+  if (!fixturesSheet || !spmSheet)
+    return HtmlService.createHtmlOutput("Sheet Missing");
+
+  var fixturesData = fixturesSheet.getDataRange().getValues();
+  var spmData = spmSheet.getDataRange().getValues();
+
+  // FIXTURES
+  for (var i = 1; i < fixturesData.length; i++) {
+    if (fixturesData[i][0] == id) {
+
+      var maintenanceLink = fixturesData[i][12];
+
+      return HtmlService.createHtmlOutput(
+        buildUI(
+          "Tool Room Equipment Details",
+          {
+            "Category": fixturesData[i][1],
+            "Tool No": fixturesData[i][2],
+            "Product Name": fixturesData[i][3],
+            "Operations": fixturesData[i][4],
+            "Manufacturing Date": fixturesData[i][5]
+          },
+          "fixture",
+          {
+            maintenance: maintenanceLink
+          }
+        )
+      ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    }
+  }
+
+  // SPM
+  for (var j = 1; j < spmData.length; j++) {
+    if (spmData[j][0] == id) {
+
+      return HtmlService.createHtmlOutput(
+        buildUI(
+          "Tool Room Equipment Details",
+          {
+            "Tool Number": spmData[j][0],
+            "Description": spmData[j][1],
+            "Test Type": spmData[j][2],
+            "Min Pressure": spmData[j][3] + " Bar",
+            "Max Pressure": spmData[j][4] + " Bar",
+            "Manufacturing Year": spmData[j][7] || "-",
+            "Handover Date": spmData[j][8] || "-"
+          },
+          "spm",
+          {
+            maintenance: spmData[j][13],
+            pid: spmData[j][14],
+            product: spmData[j][15]
+          }
+        )
+      ).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    }
+  }
+
+  return HtmlService.createHtmlOutput("Item Not Found");
+}
+
+
+/*********************************
+ * UI BUILDER
+ *********************************/
+function buildUI(title, data, type, links) {
+
+  var rows = "";
+  for (var key in data) {
+    rows += `
+      <div class="row">
+        <div class="label">${key}</div>
+        <div class="value">${data[key]}</div>
+      </div>
+    `;
+  }
+
+  var buttons = "";
+
+  if (type === "fixture") {
+    buttons = `
+      <div class="button-center">
+        <button class="action-button ripple"
+          onclick="openFile('${links.maintenance || ""}')">
+          Maintenance Manual
+        </button>
+      </div>
+    `;
+  }
+
+  if (type === "spm") {
+    buttons = `
+      <div class="button-row">
+        <button class="action-button ripple"
+          onclick="openFile('${links.product || ""}')">
+          Products & Test Pressure
+        </button>
+
+        <button class="action-button ripple"
+          onclick="openFile('${links.pid || ""}')">
+          P&ID
+        </button>
+
+        <button class="action-button ripple"
+          onclick="openFile('${links.maintenance || ""}')">
+          Maintenance Manual
+        </button>
+      </div>
+    `;
+  }
+
+  var forbesLogo = "https://lh3.googleusercontent.com/d/1orujfQNVo2qKuNtQuqjj8fGEAJtKh9a0";
+  var toolRoomLogo = "https://lh3.googleusercontent.com/d/1uldv_CpGrPnzfVo1SK3EIaXJPDnrVeQk";
+
+  return `
+  <html>
+  <head>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+
+  body{
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(135deg,#0f4c81,#1f6fb2);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:25px 15px;
+  }
+
+  .card{
+    background:white;
+    width:100%;
+    max-width:750px;
+    border-radius:18px;
+    padding:35px 40px;
+    box-shadow:0 18px 45px rgba(0,0,0,0.35);
+    box-sizing:border-box;
+  }
+
+  .logo-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+  }
+
+  .logo-row img{
+    height:45px;
+    cursor:pointer;
+  }
+
+  .logo-click{
+    animation:pop 0.25s ease;
+  }
+
+  @keyframes pop{
+    0%{transform:scale(1);}
+    50%{transform:scale(0.85);}
+    100%{transform:scale(1);}
+  }
+
+  .title{
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    color:#0f4c81;
+    border-bottom:2px solid #1f6fb2;
+    padding-bottom:10px;
+    margin-bottom:25px;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns:40% 60%;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+  }
+
+  .label{font-weight:bold;color:#333;}
+  .value{text-align:right;color:#1f6fb2;word-break:break-word;}
+
+  .button-row{
+    margin-top:30px;
+    display:flex;
+    gap:12px;
+  }
+
+  .button-center{
+    margin-top:30px;
+    text-align:center;
+  }
+
+  .action-button{
+    position:relative;
+    overflow:hidden;
+    background:white;
+    color:#1f6fb2;
+    border:2px solid #1f6fb2;
+    padding:10px 12px;
+    font-size:13px;
+    font-weight:bold;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+    flex:1;
+  }
+
+  .action-button:hover{
+    background:#1f6fb2;
+    color:white;
+  }
+
+  .action-button:active::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:200%;
+    height:200%;
+    background:rgba(31,111,178,0.3);
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+  }
+
+  @media (max-width:600px){
+
+    body{
+      padding:20px 10px;
+    }
+
+    .card{
+      max-width:420px;
+      padding:25px 20px;
+      border-radius:16px;
+    }
+
+    .title{
+      font-size:20px;
+    }
+
+    .row{
+      grid-template-columns:45% 55%;
+    }
+
+    .button-row{
+      gap:8px;
+    }
+
+    .action-button{
+      font-size:12px;
+      padding:10px;
+      min-height:44px;
+    }
+
+    .logo-row img{
+      height:40px;
+    }
+
+  }
+
+  @media (max-width:420px){
+
+    .card{
+      max-width:360px;
+      padding:22px 18px;
+    }
+
+    .action-button{
+      font-size:11px;
+      min-height:48px;
+    }
+
+  }
+
+  .pdf-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    justify-content:center;
+    align-items:center;
+  }
+
+  .pdf-content{
+    background:white;
+    width:95%;
+    height:95%;
+    border-radius:12px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .close-btn{
+    position:absolute;
+    right:15px;
+    top:15px;
+    width:40px;
+    height:40px;
+    background:#d00000;
+    color:white;
+    border:none;
+    font-size:20px;
+    font-weight:bold;
+    cursor:pointer;
+  }
+
+  iframe{
+    width:100%;
+    height:100%;
+    border:none;
+  }
+
+  .footer{
+    margin-top:20px;
+    font-size:12px;
+    color:white;
+    text-align:center;
+  }
+
+  </style>
+  </head>
+
+  <body>
+
+  <div class="card">
+
+    <div class="logo-row">
+      <img src="${toolRoomLogo}" onclick="toolRoomClick(this)">
+      <img src="${forbesLogo}" onclick="forbesClick(this)">
+    </div>
+
+    <div class="title">${title}</div>
+
+    ${rows}
+    ${buttons}
+
+  </div>
+
+  <div class="footer">
+    © 2026 Forbes Marshall Pvt. Ltd. All Rights Reserved.
+  </div>
+
+  <div class="pdf-modal" id="pdfModal">
+    <div class="pdf-content">
+      <button class="close-btn" onclick="closeFile()">✕</button>
+      <iframe id="viewerFrame"></iframe>
+    </div>
+  </div>
+
+<script>
+
+function animateClick(el){
+  el.classList.add("logo-click");
+  setTimeout(()=>{ el.classList.remove("logo-click"); },250);
+}
+
+function toolRoomClick(el){
+  animateClick(el);
+  setTimeout(()=>{
+    window.location.href="mailto:toolroom@forbesmarshall.com";
+  },200);
+}
+
+function forbesClick(el){
+  animateClick(el);
+  setTimeout(()=>{
+    window.open("https://www.forbesmarshall.com","_blank");
+  },200);
+}
+
+function openFile(url){
+
+  if(!url){
+    alert("File Not Available");
+    return;
+  }
+
+  var match=url.match(/[-\\w]{25,}/);
+
+  if(!match){
+    alert("Invalid Drive Link");
+    return;
+  }
+
+  var preview="https://drive.google.com/file/d/"+match[0]+"/preview";
+
+  document.getElementById("viewerFrame").src=preview;
+  document.getElementById("pdfModal").style.display="flex";
+}
+
+function closeFile(){
+  document.getElementById("pdfModal").style.display="none";
+  document.getElementById("viewerFrame").src="";
+}
+
+</script>
+
+</body>
+</html>
+`;
+}
