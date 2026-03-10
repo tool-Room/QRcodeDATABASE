@@ -1,46 +1,101 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-<title>Tool Room Equipment</title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-
-body{
-margin:0;
-overflow:hidden;
-}
-
-iframe{
-width:100%;
-height:100%;
-position:fixed;
-top:0;
-left:0;
-border:none;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<iframe id="appframe"></iframe>
-
 <script>
 
-const params = window.location.search;
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+/* SESSION ID */
+
+let sessionId = sessionStorage.getItem("session_id");
+
+if(!sessionId){
+  sessionId = Math.random().toString(36).substring(2,10);
+  sessionStorage.setItem("session_id",sessionId);
+}
+
+/* VISIT COUNT */
+
+let visitCount = sessionStorage.getItem("visit_count");
+visitCount = visitCount ? parseInt(visitCount)+1 : 1;
+sessionStorage.setItem("visit_count",visitCount);
+
+/* DEVICE */
+
+const device = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
+
+/* OS */
+
+let os="Unknown";
+
+if(navigator.userAgent.indexOf("Win")!=-1) os="Windows";
+if(navigator.userAgent.indexOf("Android")!=-1) os="Android";
+if(navigator.userAgent.indexOf("iPhone")!=-1) os="iOS";
+if(navigator.userAgent.indexOf("Mac")!=-1) os="MacOS";
+
+/* BROWSER */
+
+const browser = navigator.userAgent;
+
+/* DOCUMENT TRACKING */
+
+let docsAccessed=[];
+
+/* START TIME */
+
+const startTime=Date.now();
+
+/* GET IP */
+
+fetch("https://api.ipify.org?format=json")
+.then(res=>res.json())
+.then(data=>{
+
+const ip=data.ip;
 
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbyfymlV1FLu50r8TdUqMEWZACu_DHWt6L7-Iq9A3uMGTtUk-ySi59U6qiO4CKDqHAh39Q/exec" + params;
+"https://script.google.com/macros/s/AKfycbyfymlV1FLu50r8TdUqMEWZACu_DHWt6L7-Iq9A3uMGTtUk-ySi59U6qiO4CKDqHAh39Q/exec"
++"?id="+id
++"&session="+sessionId
++"&visit="+visitCount
++"&device="+device
++"&browser="+encodeURIComponent(browser)
++"&os="+os
++"&ip="+ip;
 
-document.getElementById("appframe").src = scriptURL;
+document.getElementById("appframe").src=scriptURL;
+
+});
+
+/* FUNCTION CALLED FROM IFRAME WHEN DOCUMENT OPENED */
+
+window.addEventListener("message",function(e){
+
+if(e.data && e.data.doc){
+
+if(!docsAccessed.includes(e.data.doc)){
+docsAccessed.push(e.data.doc);
+}
+
+}
+
+});
+
+/* PAGE CLOSE */
+
+window.addEventListener("beforeunload",function(){
+
+let duration=Math.round((Date.now()-startTime)/1000);
+
+navigator.sendBeacon(
+"https://script.google.com/macros/s/AKfycbyfymlV1FLu50r8TdUqMEWZACu_DHWt6L7-Iq9A3uMGTtUk-ySi59U6qiO4CKDqHAh39Q/exec",
+new URLSearchParams({
+id:id,
+session:sessionId,
+visit:visitCount,
+duration:duration,
+docs:docsAccessed.join(", ")
+})
+);
+
+});
 
 </script>
-
-</body>
-
-</html>
