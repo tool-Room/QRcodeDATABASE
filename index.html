@@ -22,7 +22,7 @@ sessionStorage.setItem("visit_count",visitCount);
 
 const device = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
 
-/* OS */
+/* OS DETECTION */
 
 let os="Unknown";
 
@@ -51,21 +51,25 @@ fetch("https://api.ipify.org?format=json")
 
 const ip=data.ip;
 
+/* BUILD SCRIPT URL */
+
 const scriptURL =
 "https://script.google.com/macros/s/AKfycbyfymlV1FLu50r8TdUqMEWZACu_DHWt6L7-Iq9A3uMGTtUk-ySi59U6qiO4CKDqHAh39Q/exec"
 +"?id="+id
 +"&session="+sessionId
 +"&visit="+visitCount
-+"&device="+device
++"&device="+encodeURIComponent(device)
 +"&browser="+encodeURIComponent(browser)
-+"&os="+os
-+"&ip="+ip;
++"&os="+encodeURIComponent(os)
++"&ip="+encodeURIComponent(ip);
+
+/* LOAD APPS SCRIPT PAGE */
 
 document.getElementById("appframe").src=scriptURL;
 
 });
 
-/* FUNCTION CALLED FROM IFRAME WHEN DOCUMENT OPENED */
+/* RECEIVE DOCUMENT CLICK EVENTS FROM IFRAME */
 
 window.addEventListener("message",function(e){
 
@@ -79,7 +83,7 @@ docsAccessed.push(e.data.doc);
 
 });
 
-/* PAGE CLOSE */
+/* SEND DURATION + DOCUMENTS WHEN PAGE CLOSES */
 
 window.addEventListener("beforeunload",function(){
 
