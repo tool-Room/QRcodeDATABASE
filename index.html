@@ -4,10 +4,7 @@
 <head>
 <title>Tool Room Equipment</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-
 body{
 margin:0;
 overflow:hidden;
@@ -15,13 +12,9 @@ overflow:hidden;
 
 iframe{
 width:100%;
-height:100%;
-position:fixed;
-top:0;
-left:0;
+height:100vh;
 border:none;
 }
-
 </style>
 
 </head>
@@ -32,11 +25,14 @@ border:none;
 
 <script>
 
+// get parameter from URL
 const params = window.location.search;
 
+// your Apps Script web app link
 const scriptURL =
 "https://script.google.com/macros/s/AKfycbx42wEQIh6aj84rhCw2oasvOI-7cYLx0deiFB9Drx26bPvNkdPcFPz2DBJdaY05i07Y/exec" + params;
 
+// load script inside iframe
 document.getElementById("appframe").src = scriptURL;
 
 </script>
