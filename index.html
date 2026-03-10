@@ -32,12 +32,12 @@ border:none;
 
 <script>
 
-/* Read QR parameter */
+/* Read QR parameters */
 
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
-/* SESSION */
+/* Session */
 
 let sessionId = sessionStorage.getItem("session_id");
 
@@ -46,13 +46,13 @@ sessionId = Math.random().toString(36).substring(2,10);
 sessionStorage.setItem("session_id",sessionId);
 }
 
-/* VISIT COUNT */
+/* Visit count */
 
 let visitCount = sessionStorage.getItem("visit_count");
 visitCount = visitCount ? parseInt(visitCount)+1 : 1;
 sessionStorage.setItem("visit_count",visitCount);
 
-/* DEVICE */
+/* Device */
 
 const device = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
 
@@ -65,11 +65,11 @@ if(navigator.userAgent.includes("Android")) os="Android";
 if(navigator.userAgent.includes("iPhone")) os="iOS";
 if(navigator.userAgent.includes("Mac")) os="MacOS";
 
-/* BROWSER */
+/* Browser */
 
 const browser = navigator.userAgent;
 
-/* GET IP */
+/* Get IP */
 
 fetch("https://api.ipify.org?format=json")
 .then(res=>res.json())
@@ -77,10 +77,8 @@ fetch("https://api.ipify.org?format=json")
 
 const ip=data.ip;
 
-/* Build URL */
-
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbx7zO10w2suMAk1RpMXPpAV8urGAYBMvF0aFIFDXpRl8DKgwc5q2G5J5LsUolKYyG3lng/exec"
+"https://script.google.com/macros/s/AKfycbxHfpzyIOtfOlFWPMen__B2aVLhK-kocU3bptdp-Iu3RluA-eSr4QfW8Uzjm5a5lcWnXA/exec"
 +"?id="+id
 +"&session="+sessionId
 +"&visit="+visitCount
@@ -89,7 +87,7 @@ const scriptURL =
 +"&os="+encodeURIComponent(os)
 +"&ip="+encodeURIComponent(ip);
 
-/* Load Apps Script */
+/* Load Apps Script UI */
 
 document.getElementById("appframe").src = scriptURL;
 
