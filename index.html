@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Tool Room Equipment</title>
+
+<style>
+
+body{
+margin:0;
+overflow:hidden;
+}
+
+iframe{
+width:100%;
+height:100vh;
+border:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<iframe id="appframe"></iframe>
+
+<script>
+
+const params = window.location.search;
+
+const scriptURL =
+"https://script.google.com/macros/s/AKfycbxkFy6bplH3qix9vQsARDupTN1GvTZ9MPO0gqtUPiFE45Al4RSQxQVEINg7-mfDRfsaoQ/exec" + params;
+
+document.getElementById("appframe").src = scriptURL;
+
+</script>
+
+</body>
+
+</html>
