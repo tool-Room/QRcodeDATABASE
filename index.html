@@ -54,7 +54,7 @@ const ip=data.ip;
 /* BUILD SCRIPT URL */
 
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbyfymlV1FLu50r8TdUqMEWZACu_DHWt6L7-Iq9A3uMGTtUk-ySi59U6qiO4CKDqHAh39Q/exec"
+"https://script.google.com/macros/s/AKfycbxKYWO_MpFkLB8krgOZWwV3Xam5X47XAzTHjqKJCUDgOrCo16HZEsZslAunkoGtfUcWVQ/exec"
 +"?id="+id
 +"&session="+sessionId
 +"&visit="+visitCount
@@ -90,7 +90,7 @@ window.addEventListener("beforeunload",function(){
 let duration=Math.round((Date.now()-startTime)/1000);
 
 navigator.sendBeacon(
-"https://script.google.com/macros/s/AKfycbyfymlV1FLu50r8TdUqMEWZACu_DHWt6L7-Iq9A3uMGTtUk-ySi59U6qiO4CKDqHAh39Q/exec",
+"https://script.google.com/macros/s/AKfycbxKYWO_MpFkLB8krgOZWwV3Xam5X47XAzTHjqKJCUDgOrCo16HZEsZslAunkoGtfUcWVQ/exec",
 new URLSearchParams({
 id:id,
 session:sessionId,
