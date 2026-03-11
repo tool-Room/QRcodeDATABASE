@@ -91,9 +91,23 @@ const scriptURL =
 +"&os="+encodeURIComponent(os)
 +"&ip="+encodeURIComponent(ip);
 
-/* Load Apps Script UI */
+/* CHECK IF USER LOGGED IN */
+
+if(!sessionStorage.getItem("google_auth")){
+
+sessionStorage.setItem("google_auth","1");
+
+/* REDIRECT FOR LOGIN */
+
+window.location.href = scriptURL;
+
+}else{
+
+/* LOAD UI AFTER LOGIN */
 
 document.getElementById("appframe").src = scriptURL;
+
+}
 
 });
 
