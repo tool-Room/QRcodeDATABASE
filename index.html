@@ -1,43 +1,9 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-<title>Tool Room Equipment</title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-
-body{
-margin:0;
-overflow:hidden;
-}
-
-iframe{
-width:100%;
-height:100%;
-position:fixed;
-top:0;
-left:0;
-border:none;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<iframe id="appframe"></iframe>
-
 <script>
-
-/* Read QR parameters */
 
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
-/* Session */
+/* SESSION */
 
 let sessionId = sessionStorage.getItem("session_id");
 
@@ -46,13 +12,13 @@ sessionId = Math.random().toString(36).substring(2,10);
 sessionStorage.setItem("session_id",sessionId);
 }
 
-/* Visit count */
+/* VISIT */
 
 let visitCount = sessionStorage.getItem("visit_count");
 visitCount = visitCount ? parseInt(visitCount)+1 : 1;
 sessionStorage.setItem("visit_count",visitCount);
 
-/* Device */
+/* DEVICE */
 
 const device = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
 
@@ -65,11 +31,33 @@ if(navigator.userAgent.includes("Android")) os="Android";
 if(navigator.userAgent.includes("iPhone")) os="iOS";
 if(navigator.userAgent.includes("Mac")) os="MacOS";
 
-/* Browser */
+/* BROWSER */
 
 const browser = navigator.userAgent;
 
-/* Get IP */
+/* DOCUMENT TRACKING */
+
+let docsAccessed=[];
+
+/* SESSION START */
+
+const startTime = Date.now();
+
+/* LISTEN DOCUMENT EVENTS FROM APPS SCRIPT UI */
+
+window.addEventListener("message",function(e){
+
+if(e.data && e.data.doc){
+
+if(!docsAccessed.includes(e.data.doc)){
+docsAccessed.push(e.data.doc);
+}
+
+}
+
+});
+
+/* GET IP */
 
 fetch("https://api.ipify.org?format=json")
 .then(res=>res.json())
@@ -78,7 +66,7 @@ fetch("https://api.ipify.org?format=json")
 const ip=data.ip;
 
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbxHfpzyIOtfOlFWPMen__B2aVLhK-kocU3bptdp-Iu3RluA-eSr4QfW8Uzjm5a5lcWnXA/exec"
+"https://script.google.com/macros/s/AKfycbyfymlV1FLu50r8TdUqMEWZACu_DHWt6L7-Iq9A3uMGTtUk-ySi59U6qiO4CKDqHAh39Q/exec"
 +"?id="+id
 +"&session="+sessionId
 +"&visit="+visitCount
@@ -87,14 +75,25 @@ const scriptURL =
 +"&os="+encodeURIComponent(os)
 +"&ip="+encodeURIComponent(ip);
 
-/* Load Apps Script UI */
-
 document.getElementById("appframe").src = scriptURL;
 
 });
 
+/* WHEN PAGE CLOSES SEND DURATION + DOCUMENTS */
+
+window.addEventListener("beforeunload",function(){
+
+let duration=Math.round((Date.now()-startTime)/1000);
+
+navigator.sendBeacon(
+"https://script.google.com/macros/s/AKfycbxR-2o6AB95b_Qi6l2UXVy54LQ1JR6aRxGWrvOx5entGeb8jXSIvprRa2mosQev8ob-AQ/exec",
+new URLSearchParams({
+id:id,
+duration:duration,
+docs:docsAccessed.join(", ")
+})
+);
+
+});
+
 </script>
-
-</body>
-
-</html>
