@@ -69,28 +69,6 @@ if(navigator.userAgent.includes("Mac")) os="MacOS";
 
 const browser = navigator.userAgent;
 
-/* Document tracking */
-
-let docsAccessed=[];
-
-/* Start timer */
-
-const startTime = Date.now();
-
-/* Listen for document open events */
-
-window.addEventListener("message",function(e){
-
-if(e.data && e.data.doc){
-
-if(!docsAccessed.includes(e.data.doc)){
-docsAccessed.push(e.data.doc);
-}
-
-}
-
-});
-
 /* Get IP */
 
 fetch("https://api.ipify.org?format=json")
@@ -100,7 +78,7 @@ fetch("https://api.ipify.org?format=json")
 const ip=data.ip;
 
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbwPgIyWLxuT1JVuGPYroSsBtlU6ctEUS2Bx4c9P1crauf5lBk3nxdWd-nMHXhVVNXXzyQ/exec"
+"https://script.google.com/macros/s/AKfycbzab8D0glNbcmVCcH5yUZfYp-OwmMqYMbpRAqG7gSUTUjNTGnFPojnOwARDEebg3DZLbA/exec"
 +"?id="+id
 +"&session="+sessionId
 +"&visit="+visitCount
@@ -112,23 +90,6 @@ const scriptURL =
 /* Load Apps Script UI */
 
 document.getElementById("appframe").src = scriptURL;
-
-});
-
-/* Send duration + documents when page closes */
-
-window.addEventListener("pagehide",function(){
-
-let duration=Math.round((Date.now()-startTime)/1000);
-
-navigator.sendBeacon(
-"https://script.google.com/macros/s/AKfycbwPgIyWLxuT1JVuGPYroSsBtlU6ctEUS2Bx4c9P1crauf5lBk3nxdWd-nMHXhVVNXXzyQ/exec",
-new URLSearchParams({
-id:id,
-duration:duration,
-docs:docsAccessed.join(", ")
-})
-);
 
 });
 
