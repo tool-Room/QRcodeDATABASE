@@ -5,11 +5,7 @@
 <title>Tool Room Equipment</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy"
-content="default-src 'self' https://script.google.com https://accounts.google.com https://*.googleusercontent.com https://api.ipify.org;
-script-src 'self' https://api.ipify.org https://accounts.google.com;
-frame-src https://script.google.com https://accounts.google.com;
-connect-src https://api.ipify.org;">
+
 <style>
 
 body{
@@ -82,7 +78,7 @@ fetch("https://api.ipify.org?format=json")
 const ip=data.ip;
 
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbz11IGOpxGuLMwZgmtr_k8an-Ci9HfguQ6HOZs4cwoe3q01GdmJ_DJptPzRNMNlwbVz1w/exec"
+"https://script.google.com/macros/s/AKfycbz5HMWu-zYbPWLnMyo6pjEjeHdLUp6x2SWNvoaSssoeFXXYMl6NQHJ5p86EjLnyaRHnMA/exec"
 +"?id="+id
 +"&session="+sessionId
 +"&visit="+visitCount
@@ -91,23 +87,9 @@ const scriptURL =
 +"&os="+encodeURIComponent(os)
 +"&ip="+encodeURIComponent(ip);
 
-/* CHECK IF USER LOGGED IN */
-
-if(!sessionStorage.getItem("google_auth")){
-
-sessionStorage.setItem("google_auth","1");
-
-/* REDIRECT FOR LOGIN */
-
-window.location.href = scriptURL;
-
-}else{
-
-/* LOAD UI AFTER LOGIN */
+/* Load Apps Script UI */
 
 document.getElementById("appframe").src = scriptURL;
-
-}
 
 });
 
