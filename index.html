@@ -117,7 +117,7 @@ document.getElementById("appframe").src = scriptURL;
 
 /* Send duration + documents when page closes */
 
-window.addEventListener("beforeunload",function(){
+window.addEventListener("pagehide",function(){
 
 let duration=Math.round((Date.now()-startTime)/1000);
 
