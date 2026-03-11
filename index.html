@@ -5,7 +5,11 @@
 <title>Tool Room Equipment</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta http-equiv="Content-Security-Policy"
+content="default-src 'self' https://script.google.com https://api.ipify.org;
+script-src 'self' https://api.ipify.org;
+frame-src https://script.google.com;
+connect-src https://api.ipify.org;">
 <style>
 
 body{
@@ -78,7 +82,7 @@ fetch("https://api.ipify.org?format=json")
 const ip=data.ip;
 
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbxAFnnullj_DTf35qoQx7aZS8l_Pt3vDW8BxBPG6fy0wEljlCh5XY3qaaAESorbEf88vw/exec"
+"https://script.google.com/macros/s/AKfycbz11IGOpxGuLMwZgmtr_k8an-Ci9HfguQ6HOZs4cwoe3q01GdmJ_DJptPzRNMNlwbVz1w/exec"
 +"?id="+id
 +"&session="+sessionId
 +"&visit="+visitCount
