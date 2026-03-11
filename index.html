@@ -100,7 +100,7 @@ fetch("https://api.ipify.org?format=json")
 const ip=data.ip;
 
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbzXPoEVy87DY6DKoGtnL0PFlR0z38t6eW9kbVffjYzWvSUnRTYVEFXPeW1-03QmP4BRJA/exec"
+"https://script.google.com/macros/s/AKfycbwPgIyWLxuT1JVuGPYroSsBtlU6ctEUS2Bx4c9P1crauf5lBk3nxdWd-nMHXhVVNXXzyQ/exec"
 +"?id="+id
 +"&session="+sessionId
 +"&visit="+visitCount
@@ -122,7 +122,7 @@ window.addEventListener("pagehide",function(){
 let duration=Math.round((Date.now()-startTime)/1000);
 
 navigator.sendBeacon(
-"https://script.google.com/macros/s/AKfycbyzkk0S_GXdJmSq6Mu7cvtqGBKvMiWhhTsxVbcjwYDZp7SgNFozkJc-gs_UUrirTxBxnQ/exec",
+"https://script.google.com/macros/s/AKfycbwPgIyWLxuT1JVuGPYroSsBtlU6ctEUS2Bx4c9P1crauf5lBk3nxdWd-nMHXhVVNXXzyQ/exec",
 new URLSearchParams({
 id:id,
 duration:duration,
