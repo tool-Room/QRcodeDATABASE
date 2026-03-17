@@ -32,21 +32,28 @@ left:0;
 width:100%;
 height:100%;
 pointer-events:none;
-z-index:9999;
+z-index:999999;
 overflow:hidden;
 }
 
-/* SINGLE WATERMARK ITEM */
-.watermark{
+/* WATERMARK BLOCK */
+.watermarkBlock{
 position:absolute;
-font-size:14px;
-color:rgba(255,0,0,0.15);
-transform:rotate(-30deg);
-white-space:nowrap;
-font-weight:bold;
+width:220px;
+font-size:12px;
+color:rgba(150,0,0,0.28);
+line-height:1.4;
+transform:rotate(-25deg);
+font-weight:600;
 user-select:none;
 }
 
+/* TITLE LINE */
+.wm-title{
+font-size:14px;
+font-weight:bold;
+letter-spacing:1px;
+}
 </style>
 
 </head>
@@ -133,28 +140,38 @@ function renderWatermark(){
 const layer = document.getElementById("watermarkLayer");
 layer.innerHTML = "";
 
-/* CURRENT TIME */
+/* TIME */
 const now = new Date().toLocaleString();
 
-/* TEXT */
-const text = `CONFIDENTIAL | ID:${id} | S:${session} | IP:${ip} | ${now}`;
+/* GRID SPACING (IMPORTANT) */
+const gapX = 260;
+const gapY = 200;
 
-/* GRID GENERATION */
-const gapX = 250;
-const gapY = 150;
-
-/* RANDOM SHIFT (ANTI-AI REMOVAL) */
-const shiftX = Math.random()*50;
-const shiftY = Math.random()*50;
+/* SMALL SHIFT */
+const shiftX = Math.random()*30;
+const shiftY = Math.random()*30;
 
 for(let x=-200; x<window.innerWidth+200; x+=gapX){
 for(let y=-200; y<window.innerHeight+200; y+=gapY){
 
 const wm = document.createElement("div");
-wm.className = "watermark";
+wm.className = "watermarkBlock";
+
+/* slight opacity variation */
+const opacity = 0.22 + Math.random()*0.1;
+wm.style.color = `rgba(150,0,0,${opacity})`;
+
 wm.style.left = (x + shiftX) + "px";
 wm.style.top = (y + shiftY) + "px";
-wm.innerText = text;
+
+/* STRUCTURED TEXT (NO OVERLAP) */
+wm.innerHTML = `
+<div class="wm-title">CONFIDENTIAL</div>
+<div>ID: ${id}</div>
+<div>S: ${session}</div>
+<div>IP: ${ip}</div>
+<div>${now}</div>
+`;
 
 layer.appendChild(wm);
 
