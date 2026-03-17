@@ -39,17 +39,16 @@ overflow:hidden;
 /* WATERMARK BLOCK */
 .watermarkBlock{
 position:absolute;
-width:220px;
-font-size:12px;
-color:rgba(150,0,0,0.28);
-line-height:1.4;
+width:240px;
+font-size:13px;
+line-height:1.5;
 font-weight:600;
 user-select:none;
 }
 
-/* TITLE LINE */
+/* Title */
 .wm-title{
-font-size:14px;
+font-size:15px;
 font-weight:bold;
 letter-spacing:1px;
 }
@@ -143,9 +142,14 @@ layer.innerHTML = "";
 const now = new Date().toLocaleString();
 
 /* GRID SPACING (IMPORTANT) */
-const gapX = 260;
-const gapY = 200;
+let gapX = 260;
+let gapY = 200;
 
+/* MOBILE ADJUSTMENT */
+if(window.innerWidth < 600){
+  gapX = 180;
+  gapY = 140;
+}
 /* SMALL SHIFT */
 const shiftX = Math.random()*30;
 const shiftY = Math.random()*30;
@@ -156,18 +160,25 @@ for(let y=-200; y<window.innerHeight+200; y+=gapY){
 const wm = document.createElement("div");
 wm.className = "watermarkBlock";
 
+/* ROTATION RANDOM */
 wm.style.transform = (Math.random() > 0.5)
 ? "rotate(-25deg)"
 : "rotate(15deg)";
 
-/* slight opacity variation */
-const opacity = 0.22 + Math.random()*0.1;
-wm.style.color = `rgba(150,0,0,${opacity})`;
+/* 🎨 COLOR RANDOMIZATION */
+const useRed = Math.random() > 0.5;
 
+if(useRed){
+  wm.style.color = `rgba(180,0,0,${0.22 + Math.random()*0.1})`;
+}else{
+  wm.style.color = `rgba(80,80,80,${0.18 + Math.random()*0.1})`;
+}
+
+/* POSITION */
 wm.style.left = (x + shiftX) + "px";
 wm.style.top = (y + shiftY) + "px";
 
-/* STRUCTURED TEXT (NO OVERLAP) */
+/* TEXT */
 wm.innerHTML = `
 <div class="wm-title">CONFIDENTIAL</div>
 <div>ID: ${id}</div>
