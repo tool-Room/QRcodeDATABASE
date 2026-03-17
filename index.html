@@ -13,6 +13,7 @@ margin:0;
 overflow:hidden;
 }
 
+/* APP IFRAME */
 iframe{
 width:100%;
 height:100%;
@@ -20,6 +21,30 @@ position:fixed;
 top:0;
 left:0;
 border:none;
+z-index:1;
+}
+
+/* WATERMARK OVERLAY */
+#watermarkLayer{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+pointer-events:none;
+z-index:9999;
+overflow:hidden;
+}
+
+/* SINGLE WATERMARK ITEM */
+.watermark{
+position:absolute;
+font-size:14px;
+color:rgba(255,0,0,0.15);
+transform:rotate(-30deg);
+white-space:nowrap;
+font-weight:bold;
+user-select:none;
 }
 
 </style>
@@ -30,14 +55,17 @@ border:none;
 
 <iframe id="appframe"></iframe>
 
+<!-- WATERMARK -->
+<div id="watermarkLayer"></div>
+
 <script>
 
-/* Read QR parameters */
+/* ------------------ PARAMETERS ------------------ */
 
 const params = new URLSearchParams(window.location.search);
-const id = params.get("id");
+const id = params.get("id") || "UNKNOWN";
 
-/* Session */
+/* ------------------ SESSION ------------------ */
 
 let sessionId = sessionStorage.getItem("session_id");
 
@@ -46,17 +74,17 @@ sessionId = Math.random().toString(36).substring(2,10);
 sessionStorage.setItem("session_id",sessionId);
 }
 
-/* Visit count */
+/* ------------------ VISIT ------------------ */
 
 let visitCount = sessionStorage.getItem("visit_count");
 visitCount = visitCount ? parseInt(visitCount)+1 : 1;
 sessionStorage.setItem("visit_count",visitCount);
 
-/* Device */
+/* ------------------ DEVICE ------------------ */
 
 const device = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
 
-/* OS */
+/* ------------------ OS ------------------ */
 
 let os="Unknown";
 
@@ -65,11 +93,11 @@ if(navigator.userAgent.includes("Android")) os="Android";
 if(navigator.userAgent.includes("iPhone")) os="iOS";
 if(navigator.userAgent.includes("Mac")) os="MacOS";
 
-/* Browser */
+/* ------------------ BROWSER ------------------ */
 
 const browser = navigator.userAgent;
 
-/* Get IP */
+/* ------------------ LOAD APP ------------------ */
 
 fetch("https://api.ipify.org?format=json")
 .then(res=>res.json())
@@ -77,6 +105,7 @@ fetch("https://api.ipify.org?format=json")
 
 const ip=data.ip;
 
+/* LOAD APPS SCRIPT */
 const scriptURL =
 "https://script.google.com/macros/s/AKfycbyDofOUCJNG4izMY4DmDHfySt9KqBLofz15m1oFG0bo1qJVo5oBms6i5o_lfOr30DwVtQ/exec"
 +"?id="+id
@@ -87,11 +116,60 @@ const scriptURL =
 +"&os="+encodeURIComponent(os)
 +"&ip="+encodeURIComponent(ip);
 
-/* Load Apps Script UI */
-
 document.getElementById("appframe").src = scriptURL;
 
+/* INIT WATERMARK AFTER IP AVAILABLE */
+startWatermark(id,sessionId,ip);
+
 });
+
+
+/* ------------------ WATERMARK FUNCTION ------------------ */
+
+function startWatermark(id,session,ip){
+
+function renderWatermark(){
+
+const layer = document.getElementById("watermarkLayer");
+layer.innerHTML = "";
+
+/* CURRENT TIME */
+const now = new Date().toLocaleString();
+
+/* TEXT */
+const text = `CONFIDENTIAL | ID:${id} | S:${session} | IP:${ip} | ${now}`;
+
+/* GRID GENERATION */
+const gapX = 250;
+const gapY = 150;
+
+/* RANDOM SHIFT (ANTI-AI REMOVAL) */
+const shiftX = Math.random()*50;
+const shiftY = Math.random()*50;
+
+for(let x=-200; x<window.innerWidth+200; x+=gapX){
+for(let y=-200; y<window.innerHeight+200; y+=gapY){
+
+const wm = document.createElement("div");
+wm.className = "watermark";
+wm.style.left = (x + shiftX) + "px";
+wm.style.top = (y + shiftY) + "px";
+wm.innerText = text;
+
+layer.appendChild(wm);
+
+}
+}
+
+}
+
+/* INITIAL */
+renderWatermark();
+
+/* UPDATE EVERY 5 SEC */
+setInterval(renderWatermark,5000);
+
+}
 
 </script>
 
