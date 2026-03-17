@@ -141,7 +141,7 @@ const ip=data.ip;
 
 /* LOAD APPS SCRIPT */
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbyDofOUCJNG4izMY4DmDHfySt9KqBLofz15m1oFG0bo1qJVo5oBms6i5o_lfOr30DwVtQ/exec"
+"https://script.google.com/macros/s/AKfycbwzc2DuTGiEZPwTHM68hUusFAaiEQ16aZtIAFsQx9WVDj8qKlUbvlyxRP5c03UMG2OCTw/exec"
 +"?id="+id
 +"&session="+sessionId
 +"&visit="+visitCount
@@ -239,6 +239,12 @@ document.addEventListener("visibilitychange", function(){
 
 if(document.hidden){
   blurLayer.style.display = "flex";
+
+  /* 🔴 LOG EVENT */
+  google.script.run.logSecurityEvent(id,"TAB_SWITCH",sessionId,ip);
+
+/* 🔥 ADD THIS */
+google.script.run.detectSuspiciousActivity(id,sessionId,ip);
 }
 
 /* When user comes back */
