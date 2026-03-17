@@ -136,14 +136,10 @@ const browser = navigator.userAgent;
 fetch("https://api.ipify.org?format=json")
 .then(res=>res.json())
 .then(data=>{
-  loadApp(data.ip);
-})
-.catch(()=>{
-  loadApp("UNKNOWN");
-});
 
-function loadApp(ip){
+const ip=data.ip;
 
+/* LOAD APPS SCRIPT */
 const scriptURL =
 "https://script.google.com/macros/s/AKfycbxn3lVuNE9XEOphRcoeWVgvWBmt2XCH9NdrbxRROoN7fOv5hJ5_KrWaCPj0GScPKBlY-g/exec"
 +"?id="+id
@@ -156,6 +152,7 @@ const scriptURL =
 
 document.getElementById("appframe").src = scriptURL;
 
+/* INIT WATERMARK AFTER IP AVAILABLE */
 startWatermark(id,sessionId,ip);
 
 });
