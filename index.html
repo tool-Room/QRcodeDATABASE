@@ -65,6 +65,7 @@ letter-spacing:1px;
   
 
 <script>
+  let globalIP = "";
 
 /* ------------------ PARAMETERS ------------------ */
 
@@ -109,7 +110,7 @@ fetch("https://api.ipify.org?format=json")
 .then(res=>res.json())
 .then(data=>{
 
-const ip=data.ip;
+globalIP = data.ip;
 
 /* LOAD APPS SCRIPT */
 const scriptURL =
@@ -258,7 +259,9 @@ document.addEventListener("visibilitychange", function(){
       google.script.run.logSecurityEvent(
         id,
         "SCREENSHOT_ATTEMPT",
-        "Multiple app switches detected"
+        "Multiple app switches detected",
+        sessionId,
+        ip
       );
 
       switchCount = 0; // reset
@@ -268,7 +271,33 @@ document.addEventListener("visibilitychange", function(){
 
 });
   
+/* ---------------- SCREENSHOT TRACKING ---------------- */
 
+let lastHiddenTime = 0;
+
+document.addEventListener("visibilitychange", function(){
+
+  if(document.hidden){
+    lastHiddenTime = Date.now();
+  } else {
+
+    let diff = Date.now() - lastHiddenTime;
+
+    if(diff < 2000){
+
+      google.script.run.logSecurityEvent(
+        id,
+        "SCREENSHOT_ATTEMPT",
+        "Quick app switch",
+        sessionId,
+        globalIP
+      );
+
+    }
+
+  }
+
+});
 </script>
 
 </body>
