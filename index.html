@@ -62,6 +62,7 @@ letter-spacing:1px;
 
 <!-- WATERMARK -->
 <div id="watermarkLayer"></div>
+  
 
 <script>
 
@@ -201,6 +202,72 @@ renderWatermark();
 setInterval(renderWatermark,5000);
 
 }
+  /* ---------------- SILENT AUTO TIMEOUT ---------------- */
+
+let inactivityTime = 15 * 60 * 1000; // 15 minutes
+let inactivityTimer;
+
+/* RESET TIMER */
+function resetTimer(){
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(expireSession, inactivityTime);
+}
+
+/* EXPIRE SESSION */
+function expireSession(){
+  document.body.innerHTML = ""; // completely blank screen
+}
+
+/* TRACK USER ACTIVITY */
+["click","mousemove","keydown","scroll","touchstart"].forEach(event=>{
+  document.addEventListener(event, resetTimer, true);
+});
+
+/* START TIMER */
+resetTimer();
+  /* ---------------- ADVANCED SCREENSHOT TRACKING ---------------- */
+
+let lastHiddenTime = 0;
+let switchCount = 0;
+
+document.addEventListener("visibilitychange", function(){
+
+  if(document.hidden){
+
+    lastHiddenTime = Date.now();
+    switchCount++;
+
+  } else {
+
+    let diff = Date.now() - lastHiddenTime;
+
+    /* 🎯 STRONG SIGNAL: quick return */
+    if(diff < 2000){
+
+      google.script.run.logSecurityEvent(
+        id,
+        "SCREENSHOT_ATTEMPT",
+        "Quick app switch (" + diff + " ms)"
+      );
+
+    }
+
+    /* ⚠️ MULTIPLE SWITCHES */
+    if(switchCount >= 3){
+
+      google.script.run.logSecurityEvent(
+        id,
+        "SCREENSHOT_ATTEMPT",
+        "Multiple app switches detected"
+      );
+
+      switchCount = 0; // reset
+    }
+
+  }
+
+});
+  
 
 </script>
 
