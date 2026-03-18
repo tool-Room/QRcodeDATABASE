@@ -40,7 +40,7 @@ overflow:hidden;
 .watermarkBlock{
 position:absolute;
 width:240px;
-font-size:13px;
+font-size:15px;
 line-height:1.5;
 font-weight:600;
 user-select:none;
@@ -181,8 +181,8 @@ wm.style.top = (y + shiftY) + "px";
 /* TEXT */
 wm.innerHTML = `
 <div class="wm-title">CONFIDENTIAL</div>
-<div>ID: ${id}</div>
-<div>S: ${session}</div>
+<div>Tool_no:: ${id}</div>
+<div>Session_ID: ${session}</div>
 <div>IP: ${ip}</div>
 <div>${now}</div>
 `;
