@@ -40,7 +40,7 @@ overflow:hidden;
 .watermarkBlock{
 position:absolute;
 width:240px;
-font-size:15px;
+font-size:13px;
 line-height:1.5;
 font-weight:600;
 user-select:none;
@@ -52,20 +52,47 @@ font-size:15px;
 font-weight:bold;
 letter-spacing:1px;
 }
+  /* BLUR LAYER */
+#blurLayer{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(8px);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:1000000;
+}
+
+/* MESSAGE */
+#blurMessage{
+color:white;
+font-size:22px;
+font-weight:bold;
+text-align:center;
+padding:20px;
+border:2px solid white;
+border-radius:10px;
+background:rgba(0,0,0,0.4);
+}
 </style>
 
 </head>
 
 <body>
+  <div id="blurLayer">
+  <div id="blurMessage">⚠ Screen Inactive / Protected</div>
+</div>
 
 <iframe id="appframe"></iframe>
 
 <!-- WATERMARK -->
 <div id="watermarkLayer"></div>
-  
 
 <script>
-  let globalIP = "";
 
 /* ------------------ PARAMETERS ------------------ */
 
@@ -110,11 +137,11 @@ fetch("https://api.ipify.org?format=json")
 .then(res=>res.json())
 .then(data=>{
 
-globalIP = data.ip;
+const ip=data.ip;
 
 /* LOAD APPS SCRIPT */
 const scriptURL =
-"https://script.google.com/macros/s/AKfycbwEqWtzkk93niQ-5Qza9jhufUzTF9lEI_CBW8QLC-G3AIGhe7QsAQnsJE8qZFkSmKZKHQ/exec"
+"https://script.google.com/macros/s/AKfycbxn3lVuNE9XEOphRcoeWVgvWBmt2XCH9NdrbxRROoN7fOv5hJ5_KrWaCPj0GScPKBlY-g/exec"
 +"?id="+id
 +"&session="+sessionId
 +"&visit="+visitCount
@@ -183,8 +210,8 @@ wm.style.top = (y + shiftY) + "px";
 /* TEXT */
 wm.innerHTML = `
 <div class="wm-title">CONFIDENTIAL</div>
-<div>Tool_no:: ${id}</div>
-<div>Session_ID: ${session}</div>
+<div>ID: ${id}</div>
+<div>S: ${session}</div>
 <div>IP: ${ip}</div>
 <div>${now}</div>
 `;
@@ -203,101 +230,60 @@ renderWatermark();
 setInterval(renderWatermark,5000);
 
 }
-  /* ---------------- SILENT AUTO TIMEOUT ---------------- */
+  /* TAB SWITCH DETECTION */
 
-let inactivityTime = 15 * 60 * 1000; // 15 minutes
-let inactivityTimer;
+let blurLayer = document.getElementById("blurLayer");
 
-/* RESET TIMER */
-function resetTimer(){
-  clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(expireSession, inactivityTime);
-}
-
-/* EXPIRE SESSION */
-function expireSession(){
-  document.body.innerHTML = ""; // completely blank screen
-}
-
-/* TRACK USER ACTIVITY */
-["click","mousemove","keydown","scroll","touchstart"].forEach(event=>{
-  document.addEventListener(event, resetTimer, true);
-});
-
-/* START TIMER */
-resetTimer();
-  /* ---------------- ADVANCED SCREENSHOT TRACKING ---------------- */
-
-let lastHiddenTime = 0;
-let switchCount = 0;
-
+/* When tab becomes hidden */
 document.addEventListener("visibilitychange", function(){
 
-  if(document.hidden){
+if(document.hidden){
+  blurLayer.style.display = "flex";
+}
 
-    lastHiddenTime = Date.now();
-    switchCount++;
+/* When user comes back */
+else{
+  blurLayer.style.display = "none";
 
-  } else {
-
-    let diff = Date.now() - lastHiddenTime;
-
-    /* 🎯 STRONG SIGNAL: quick return */
-    if(diff < 2000){
-
-      google.script.run.logSecurityEvent(
-        id,
-        "SCREENSHOT_ATTEMPT",
-        "Quick app switch (" + diff + " ms)"
-      );
-
-    }
-
-    /* ⚠️ MULTIPLE SWITCHES */
-    if(switchCount >= 3){
-
-      google.script.run.logSecurityEvent(
-        id,
-        "SCREENSHOT_ATTEMPT",
-        "Multiple app switches detected",
-        sessionId,
-        ip
-      );
-
-      switchCount = 0; // reset
-    }
-
-  }
+  /* Optional alert */
+  showWarning();
+}
 
 });
-  
-/* ---------------- SCREENSHOT TRACKING ---------------- */
 
-let lastHiddenTime = 0;
 
-document.addEventListener("visibilitychange", function(){
-
-  if(document.hidden){
-    lastHiddenTime = Date.now();
-  } else {
-
-    let diff = Date.now() - lastHiddenTime;
-
-    if(diff < 2000){
-
-      google.script.run.logSecurityEvent(
-        id,
-        "SCREENSHOT_ATTEMPT",
-        "Quick app switch",
-        sessionId,
-        globalIP
-      );
-
-    }
-
-  }
-
+/* WINDOW BLUR (ALT + TAB, etc.) */
+window.addEventListener("blur", function(){
+blurLayer.style.display = "flex";
 });
+
+window.addEventListener("focus", function(){
+blurLayer.style.display = "none";
+});
+
+
+/* WARNING POPUP */
+function showWarning(){
+
+const msg = document.createElement("div");
+
+msg.innerText = "⚠ Activity detected";
+msg.style.position = "fixed";
+msg.style.bottom = "20px";
+msg.style.left = "50%";
+msg.style.transform = "translateX(-50%)";
+msg.style.background = "#d00000";
+msg.style.color = "white";
+msg.style.padding = "10px 20px";
+msg.style.borderRadius = "6px";
+msg.style.zIndex = "1000001";
+
+document.body.appendChild(msg);
+
+setTimeout(()=>{msg.remove();},2000);
+
+}
+
 </script>
 
 </body>
