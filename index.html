@@ -110,6 +110,7 @@ fetch("https://api.ipify.org?format=json")
 .then(data=>{
 
 const ip=data.ip;
+ window.userIP = ip;   // ✅ REQUIRED
 
 /* LOAD APPS SCRIPT */
 const scriptURL =
@@ -200,6 +201,47 @@ renderWatermark();
 
 /* UPDATE EVERY 5 SEC */
 setInterval(renderWatermark,5000);
+
+}
+ /* ---------------- SCREENSHOT DETECTION + LOG ---------------- */
+
+let lastWidth = window.innerWidth;
+let lastHeight = window.innerHeight;
+
+window.addEventListener("resize", function(){
+
+  const widthDiff = Math.abs(window.innerWidth - lastWidth);
+  const heightDiff = Math.abs(window.innerHeight - lastHeight);
+
+  if(widthDiff > 150 || heightDiff > 150){
+
+    alert("⚠️ Screenshot / screen recording detected!");
+
+    sendSecurityEvent("SCREENSHOT_ATTEMPT");
+
+  }
+
+  lastWidth = window.innerWidth;
+  lastHeight = window.innerHeight;
+
+});
+
+
+/* SEND EVENT TO APPS SCRIPT */
+function sendSecurityEvent(eventType){
+
+  const scriptURL =
+  "https://script.google.com/macros/s/AKfycbwEqWtzkk93niQ-5Qza9jhufUzTF9lEI_CBW8QLC-G3AIGhe7QsAQnsJE8qZFkSmKZKHQ/exec"
+  + "?id=" + id
+  + "&event=" + eventType
+  + "&session=" + sessionId
+  + "&visit=" + visitCount
+  + "&device=" + encodeURIComponent(device)
+  + "&browser=" + encodeURIComponent(browser)
+  + "&os=" + encodeURIComponent(os)
+  + "&ip=" + encodeURIComponent(window.userIP || "");
+
+  fetch(scriptURL);
 
 }
   
